@@ -9,7 +9,7 @@
 This repository is available in multiple languages.  
 Este repositorio está disponible en múltiples idiomas.
 
-- 🇬🇧 [English Documentation](./README_EN.md)  
+- 🇬🇧 [English Documentation](./README_ENG.md)  
   _Detailed guide on structure, components, usage and integration with CI/CD._
 
 - 🇪🇸 [Documentación en Español](./README_ES.md)  
