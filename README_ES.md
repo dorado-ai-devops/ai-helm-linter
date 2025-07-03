@@ -1,19 +1,19 @@
 # 🧠 ai-helm-linter
 
-> Microservicio para auditar Helm Charts con LLMs (OpenAI u Ollama), detectando errores, incoherencias o malas prácticas mediante prompts especializados.
+> Microservicio para auditar Helm Charts usando LLMs (OpenAI u Ollama), detectando errores, inconsistencias o malas prácticas mediante prompts especializados.
 
 ---
 
-## 🚀 Funcionalidades
+## 🚀 Características
 
-- ✅ Audita sintaxis, convenciones y coherencia de Helm Charts
-- 📚 Analiza `Chart.yaml`, `values.yaml` y plantillas en `templates/`
-- 🤖 Usa modelos locales con Ollama o GPT-4o vía OpenAI
-- 🧩 CLI y API REST con Flask integrados
-- 🐳 Preparado para Docker y despliegue con Helm + ArgoCD
-- 🔁 Fallback automático a OpenAI si Ollama falla
-- 📁 Compatible con flujos GitOps y pipelines CI/CD
-- ✍️ Prompts editables para adaptarse a políticas personalizadas
+- ✅ Audita sintaxis, convenciones y coherencia en Helm Charts  
+- 📚 Analiza `Chart.yaml`, `values.yaml` y las plantillas en `templates/`  
+- 🤖 Compatible con modelos locales de Ollama o GPT-4o vía OpenAI  
+- 🧩 CLI y API REST vía Flask  
+- 🐳 Preparado para Docker y desplegable con Helm + ArgoCD  
+- 🔁 Fallback automático a OpenAI si Ollama falla  
+- 📁 Compatible con GitOps y CI/CD  
+- ✍️ Prompts editables para alinearse con políticas internas  
 
 ---
 
@@ -21,92 +21,80 @@
 
 ```
 ai-helm-linter/
-├── app.py                 # Microservicio Flask (API /lint)
-├── cli/                   # Scripts CLI como lint.py
-├── lib/                   # Clientes OpenAI/Ollama y lógica común
-├── charts/                # Charts de ejemplo para pruebas
-├── prompts/               # Plantillas .prompt dinámicas
-├── requirements.txt       # Dependencias Python
-├── Dockerfile             # Contenedor Flask
-├── Makefile               # Build y despliegue automatizado
+├── app.py                 # Entrada del microservicio Flask
+├── cli/                   # Interfaz CLI (lint.py)
+├── lib/                   # Lógica central y clientes LLM
+├── prompts/               # Plantillas de prompts
+├── routes/                # Rutas de Flask
+├── requirements.txt       # Dependencias de Python
+├── Dockerfile             # Configuración de contenedor
+├── Makefile               # Automatización de build y despliegue
 └── README.md              # Documentación del proyecto
 ```
 
 ---
 
-## 🧩 Descripción Detallada de Componentes
+## 🧩 Componentes
 
 ### `app.py`
 
-Microservicio Flask desplegable en K8s:
-- Endpoint `/lint`
-- Acepta JSON: `{ "chart": "./charts/example", "mode": "openai|ollama" }`
-- Carga el contenido del chart
-- Llama a `lint.py` y devuelve análisis estructurado
+Servidor Flask que inicia el endpoint `/lint-chart`, recibe JSON e invoca el linter.
+
+### `routes/lint_chart.py`
+
+- Endpoint: `/lint-chart`
+- JSON de entrada:  
+  ```json
+  {
+    "chart_path": "./charts/example",
+    "mode": "ollama",
+    "ruleset": "default"
+  }
+  ```
+- Salida: Informe de lint generado por IA
 
 ### `cli/lint.py`
 
-Script principal para linting con IA:
-- Argumentos: `--mode`, `--chart`
-- Carga `Chart.yaml`, `values.yaml`, y plantillas
-- Inyecta en prompt dinámico
-- Devuelve auditoría técnica con explicación
+Herramienta CLI para ejecutar el linter desde terminal.
+
+```bash
+python3 cli/lint.py --mode ollama --chart charts/example
+```
 
 ### `lib/`
 
-- `input_loader.py`: lee y organiza los archivos del chart
-- `utils.py`: carga plantillas .prompt
-- `ollama_client.py`: cliente HTTP para Ollama
-- `openai_client.py`: cliente para OpenAI GPT-4o
-- `docgen.py`: función core que unifica el análisis
+- `linter.py`: Núcleo del análisis con LLM  
+- `utils.py`: Carga prompts y contenido del chart  
+- `ollama_client.py`: Cliente HTTP para Ollama  
+- `openai_client.py`: Cliente para OpenAI
 
 ### `prompts/`
 
-- Contiene prompts como `helm_lint.prompt` que pueden modificarse.
-- Admite templates para reglas específicas de tu organización.
-
-### `Dockerfile`
-
-Contenedor Flask. Expone puerto 5000.
-
-```bash
-docker build -t helm-linter:dev .
-docker run -p 5000:5000 helm-linter:dev
-```
-
-### `Makefile`
-
-Automatiza tareas como:
-
-```bash
-make build             # Build de imagen local
-make load              # Carga en KIND
-make sync              # Sincroniza con ArgoCD
-make release VERSION=v0.1.0
-```
+- `helm_linting.prompt`: Plantilla base de prompt
+- Fácilmente extensible con reglas personalizadas
 
 ---
 
-## 🔁 Jenkins Integration
+## 🔁 Integración Jenkins
 
-Puedes invocar este microservicio desde un pipeline declarativo:
+Puedes invocar el microservicio desde un pipeline declarativo en Jenkins:
 
 ```groovy
 def jsonPayload = '''
 {
-  "chart": "./charts/mychart",
+  "chart_path": "./charts/mychart",
   "mode": "ollama"
 }
 '''
 
 sh '''
-curl -X POST http://helm-linter.devops-ai.svc.cluster.local:5000/lint   -H "Content-Type: application/json"   -d '${jsonPayload}'
+curl -X POST http://helm-linter.devops-ai.svc.cluster.local:5000/lint-chart   -H "Content-Type: application/json"   -d '${jsonPayload}'
 '''
 ```
 
 ---
 
-## 🛠️ Primeros pasos
+## 🛠️ Primeros pasos (Local)
 
 ```bash
 git clone https://github.com/dorado-ai-devops/ai-helm-linter.git
@@ -118,13 +106,13 @@ pip install -r requirements.txt
 
 ---
 
-### ⚙️ Ejecutar CLI
+### Ejecutar CLI
 
 ```bash
 python3 cli/lint.py --mode ollama --chart charts/example
 ```
 
-### ⚙️ Ejecutar microservicio
+### Ejecutar microservicio Flask
 
 ```bash
 python3 app.py
@@ -135,18 +123,18 @@ python3 app.py
 ## 💡 Ejemplo de salida
 
 ```
-[ERROR] El archivo Chart.yaml no contiene campo version.
-[SUGERENCIA] Añade una clave "version: 1.0.0" para cumplir el estándar.
-[REVISIÓN] El template deployment.yaml tiene hardcodeado el puerto 80.
+[ERROR] Chart.yaml no contiene el campo "version".
+[SUGERENCIA] Añade una clave "version: 1.0.0" para cumplir con el estándar.
+[REVISIÓN] La plantilla deployment.yaml fija el puerto 80 de forma rígida.
 ```
 
 ---
 
 ## 🔮 Próximos pasos
 
-- Añadir reglas de seguridad (capabilities, runAsUser, etc)
-- Integración con validadores YAML y kubeval
-- Exportación a JSON estructurado para dashboards
+- [ ] Validaciones de seguridad (runAsNonRoot, capabilities)
+- [ ] Integrar kubeval u otros validadores YAML
+- [ ] Exportar JSON estructurado para dashboards externos
 
 ---
 
@@ -156,9 +144,9 @@ python3 app.py
 
 ---
 
-## 🧠 Inspirado por
+## 🧠 Inspirado en
 
-- [Helm Best Practices](https://helm.sh/docs/chart_best_practices/)
+- [Buenas prácticas Helm](https://helm.sh/docs/chart_best_practices/)
 - [Ollama](https://ollama.com)
 - [OpenAI API](https://platform.openai.com/docs)
 

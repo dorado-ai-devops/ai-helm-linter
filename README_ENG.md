@@ -6,14 +6,14 @@
 
 ## 🚀 Features
 
-- ✅ Audits syntax, conventions, and coherence in Helm Charts
-- 📚 Analyzes `Chart.yaml`, `values.yaml`, and templates under `templates/`
-- 🤖 Supports Ollama local models or GPT-4o via OpenAI
-- 🧩 Includes CLI and REST API via Flask
-- 🐳 Docker-ready and deployable with Helm + ArgoCD
-- 🔁 Automatic fallback to OpenAI if Ollama fails
-- 📁 GitOps and CI/CD friendly
-- ✍️ Editable prompts to match your organization's policies
+- ✅ Audits syntax, conventions, and coherence in Helm Charts  
+- 📚 Analyzes `Chart.yaml`, `values.yaml`, and templates under `templates/`  
+- 🤖 Supports Ollama local models or GPT-4o via OpenAI  
+- 🧩 CLI and REST API via Flask  
+- 🐳 Docker-ready and deployable with Helm + ArgoCD  
+- 🔁 Automatic fallback to OpenAI if Ollama fails  
+- 📁 GitOps and CI/CD friendly  
+- ✍️ Editable prompts to match your organization's policies  
 
 ---
 
@@ -21,14 +21,14 @@
 
 ```
 ai-helm-linter/
-├── app.py                 # Flask microservice (API /lint)
-├── cli/                   # CLI scripts like lint.py
-├── lib/                   # OpenAI/Ollama clients and logic
-├── charts/                # Example charts for testing
-├── prompts/               # Dynamic .prompt templates
+├── app.py                 # Flask microservice entrypoint
+├── cli/                   # CLI interface (lint.py)
+├── lib/                   # Core logic and LLM clients
+├── prompts/               # Prompt templates
+├── routes/                # Flask route handlers
 ├── requirements.txt       # Python dependencies
-├── Dockerfile             # Flask container
-├── Makefile               # Build & deployment automation
+├── Dockerfile             # Containerization config
+├── Makefile               # Build and deploy automation
 └── README.md              # Project documentation
 ```
 
@@ -38,52 +38,40 @@ ai-helm-linter/
 
 ### `app.py`
 
-Deployable Flask microservice:
-- Endpoint `/lint`
-- Accepts JSON: `{ "chart": "./charts/example", "mode": "openai|ollama" }`
-- Loads the chart contents
-- Calls `lint.py` and returns structured analysis
+Flask server initializing the route `/lint-chart`, receiving JSON and invoking the linter.
+
+### `routes/lint_chart.py`
+
+- Endpoint: `/lint-chart`
+- Input JSON:  
+  ```json
+  {
+    "chart_path": "./charts/example",
+    "mode": "ollama",
+    "ruleset": "default"
+  }
+  ```
+- Output: AI-generated lint report
 
 ### `cli/lint.py`
 
-Main script for AI-powered linting:
-- Args: `--mode`, `--chart`
-- Loads `Chart.yaml`, `values.yaml`, and templates
-- Injects into dynamic prompt
-- Returns technical audit with explanation
+CLI tool to lint Helm charts from terminal.
+
+```bash
+python3 cli/lint.py --mode ollama --chart charts/example
+```
 
 ### `lib/`
 
-- `input_loader.py`: loads and organizes chart files
-- `utils.py`: loads `.prompt` templates
-- `ollama_client.py`: HTTP client for Ollama
-- `openai_client.py`: client for OpenAI GPT-4o
-- `docgen.py`: core function to produce output
+- `linter.py`: LLM-powered linting engine  
+- `utils.py`: Loads prompts and Helm chart content  
+- `ollama_client.py`: Wrapper for Ollama's API  
+- `openai_client.py`: Wrapper for OpenAI's API
 
 ### `prompts/`
 
-- Includes prompts like `helm_lint.prompt`
-- Extendable with custom rules for your organization
-
-### `Dockerfile`
-
-Flask container. Exposes port 5000.
-
-```bash
-docker build -t helm-linter:dev .
-docker run -p 5000:5000 helm-linter:dev
-```
-
-### `Makefile`
-
-Automates tasks like:
-
-```bash
-make build             # Local image build
-make load              # Load into KIND
-make sync              # Sync with ArgoCD
-make release VERSION=v0.1.0
-```
+- `helm_linting.prompt`: Prompt template with instructions
+- Easily extendable for custom org rules
 
 ---
 
@@ -94,19 +82,19 @@ You can invoke the microservice from a Jenkins declarative pipeline:
 ```groovy
 def jsonPayload = '''
 {
-  "chart": "./charts/mychart",
+  "chart_path": "./charts/mychart",
   "mode": "ollama"
 }
 '''
 
 sh '''
-curl -X POST http://helm-linter.devops-ai.svc.cluster.local:5000/lint   -H "Content-Type: application/json"   -d '${jsonPayload}'
+curl -X POST http://helm-linter.devops-ai.svc.cluster.local:5000/lint-chart   -H "Content-Type: application/json"   -d '${jsonPayload}'
 '''
 ```
 
 ---
 
-## 🛠️ Getting Started
+## 🛠️ Getting Started (Local)
 
 ```bash
 git clone https://github.com/dorado-ai-devops/ai-helm-linter.git
@@ -118,13 +106,13 @@ pip install -r requirements.txt
 
 ---
 
-### ⚙️ Run CLI
+### Run CLI
 
 ```bash
 python3 cli/lint.py --mode ollama --chart charts/example
 ```
 
-### ⚙️ Run microservice
+### Run Flask microservice
 
 ```bash
 python3 app.py
@@ -142,11 +130,11 @@ python3 app.py
 
 ---
 
-## 🔮 Next Steps
+## 🔮 Roadmap
 
-- Add security rule validation (capabilities, runAsUser, etc)
-- Integrate YAML validators like kubeval
-- Export structured JSON for dashboards
+- [ ] Add security validations (runAsNonRoot, capabilities)
+- [ ] Integrate kubeval or similar validators
+- [ ] Output JSON for external dashboards
 
 ---
 
