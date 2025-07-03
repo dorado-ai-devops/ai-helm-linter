@@ -14,7 +14,12 @@ export PYTHONPATH="$PROJECT_ROOT"
 
 
 MODE=${1:-openai}
-CHART_PATH="charts/example"
+
+
+CHART_DIR="/root/devops-ai/chart"
+CHART_PACKAGE_DEST="/root/devops-ai/chart_package"
+
+CHART_TGZ=$(helm package "$CHART_DIR" --destination $CHART_PACKAGE_DEST  | awk '{print $NF}' | tr -d '\n')
 
 
 if [ -f "../venv/bin/activate" ]; then
@@ -22,4 +27,6 @@ if [ -f "../venv/bin/activate" ]; then
 fi
 
 
-python3 cli/lint.py --mode "$MODE" --chart "$CHART_PATH"
+python3 cli/lint.py --mode "$MODE" --chart_path "$CHART_TGZ" && rm $CHART_TGZ
+
+
