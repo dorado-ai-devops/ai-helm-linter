@@ -1,0 +1,11 @@
+Actúa como un experto en DevOps y seguridad en Kubernetes. Analiza el siguiente Helm Chart y responde con:
+
+1. Problemas detectados
+2. Recomendaciones
+3. Nivel de riesgo (bajo, medio, alto)
+
+Contenido del chart:
+${CHART_CONTENT}
+
+Reglas a aplicar:
+${RULESET}
