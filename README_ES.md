@@ -1,19 +1,22 @@
 # 🧠 ai-helm-linter
 
-> Microservicio para auditar Helm Charts usando LLMs (OpenAI u Ollama), detectando errores, inconsistencias o malas prácticas mediante prompts especializados.
+> Microservicio inteligente para auditar Helm Charts usando LLMs (Ollama o OpenAI), detectando errores, inconsistencias o malas prácticas mediante prompts especializados.  
+
+Desarrollado en Python + Flask, con CLI integrada y despliegue vía Helm + ArgoCD.
 
 ---
 
 ## 🚀 Características
 
-- ✅ Audita sintaxis, convenciones y coherencia en Helm Charts  
-- 📚 Analiza `Chart.yaml`, `values.yaml` y las plantillas en `templates/`  
-- 🤖 Compatible con modelos locales de Ollama o GPT-4o vía OpenAI  
-- 🧩 CLI y API REST vía Flask  
-- 🐳 Preparado para Docker y desplegable con Helm + ArgoCD  
-- 🔁 Fallback automático a OpenAI si Ollama falla  
-- 📁 Compatible con GitOps y CI/CD  
-- ✍️ Prompts editables para alinearse con políticas internas  
+- ✅ Audita sintaxis, convenciones y coherencia estructural en Charts Helm  
+- 🔐 Analiza `Chart.yaml`, `values.yaml`, `templates/*`, `*.tpl`, `*.json`, etc.  
+- 🤖 Compatible con modelos locales (Ollama) o remotos (GPT-4 vía OpenAI)  
+- 🔄 Fallback automático a OpenAI si Ollama falla  
+- 🧩 CLI y API REST completas  
+- 🐳 Dockerizado y desplegable con Helm + ArgoCD  
+- 📁 Compatible con entornos GitOps y pipelines CI/CD  
+- ✍️ Prompt modular y editable (`helm_linting.prompt`)  
+- 📦 Soporta Charts en carpeta o empaquetados `.tgz`  
 
 ---
 
@@ -21,14 +24,14 @@
 
 ```
 ai-helm-linter/
-├── app.py                 # Entrada del microservicio Flask
-├── cli/                   # Interfaz CLI (lint.py)
-├── lib/                   # Lógica central y clientes LLM
-├── prompts/               # Plantillas de prompts
-├── routes/                # Rutas de Flask
-├── requirements.txt       # Dependencias de Python
-├── Dockerfile             # Configuración de contenedor
-├── Makefile               # Automatización de build y despliegue
+├── app.py                 # Entrada Flask del microservicio
+├── cli/                   # CLI para ejecución directa
+├── lib/                   # Lógica de negocio y clientes IA
+├── prompts/               # Plantillas de prompt
+├── routes/                # Rutas API (Blueprint Flask)
+├── Dockerfile             # Imagen contenedor
+├── Makefile               # Build y despliegue automatizado
+├── requirements.txt       # Dependencias Python
 └── README.md              # Documentación del proyecto
 ```
 
@@ -36,62 +39,68 @@ ai-helm-linter/
 
 ## 🧩 Componentes
 
-### `app.py`
-
-Servidor Flask que inicia el endpoint `/lint-chart`, recibe JSON e invoca el linter.
-
-### `routes/lint_chart.py`
-
-- Endpoint: `/lint-chart`
-- JSON de entrada:  
-  ```json
-  {
-    "chart_path": "./charts/example",
-    "mode": "ollama",
-    "ruleset": "default"
-  }
-  ```
-- Salida: Informe de lint generado por IA
-
 ### `cli/lint.py`
 
-Herramienta CLI para ejecutar el linter desde terminal.
+CLI directa para analizar Charts desde terminal:
 
 ```bash
-python3 cli/lint.py --mode ollama --chart charts/example
+python3 cli/lint.py --mode ollama --chart_path charts/example
 ```
 
-### `lib/`
+- `--mode`: `ollama` o `openai`  
+- `--chart_path`: ruta a carpeta o `.tgz`  
+- `--ruleset`: nombre del ruleset a aplicar (por defecto: `"default"`)
 
-- `linter.py`: Núcleo del análisis con LLM  
-- `utils.py`: Carga prompts y contenido del chart  
-- `ollama_client.py`: Cliente HTTP para Ollama  
-- `openai_client.py`: Cliente para OpenAI
+### `app.py` + `routes/lint_chart.py`
 
-### `prompts/`
+Microservicio Flask que expone el endpoint `/lint-chart` para recibir Charts y retornar el análisis IA.
 
-- `helm_linting.prompt`: Plantilla base de prompt
-- Fácilmente extensible con reglas personalizadas
+- Entrada esperada:
+  - `multipart/form-data` con archivo `.tgz`
+  - campos `mode` (`ollama|openai`) y `ruleset` (opcional)
+- Salida: JSON con resultado IA interpretado
+
+---
+
+## 🧠 Lógica Interna
+
+### `lib/linter.py`
+
+- Carga el prompt base (`helm_linting.prompt`)  
+- Inserta el contenido del Chart y las reglas  
+- Llama a `query_ollama()` o `query_openai()`  
+- Si Ollama falla, hace fallback automático a OpenAI
+
+### `lib/utils.py`
+
+- Carga Charts desde carpeta o `.tgz`
+- Recorre `*.yaml`, `*.tpl`, `*.json`, etc., inyectándolos con su path relativo
+- Carga plantillas de prompt como texto plano
+
+### `lib/ollama_client.py` y `lib/openai_client.py`
+
+- Realizan peticiones HTTP a Ollama local o GPT-4 remoto  
+- Configurables vía `OLLAMA_BASE_URL` y `OPENAI_API_KEY`  
 
 ---
 
 ## 🔁 Integración Jenkins
 
-Puedes invocar el microservicio desde un pipeline declarativo en Jenkins:
-
 ```groovy
 def jsonPayload = '''
 {
-  "chart_path": "./charts/mychart",
+  "chart_path": "./charts/mychart.tgz",
   "mode": "ollama"
 }
 '''
 
-sh '''
-curl -X POST http://helm-linter.devops-ai.svc.cluster.local:5000/lint-chart   -H "Content-Type: application/json"   -d '${jsonPayload}'
-'''
+sh """
+curl -X POST http://helm-linter.devops-ai.svc.cluster.local:5000/lint-chart \
+  -F 'chart=@./charts/mychart.tgz' \
+  -F 'mode=ollama' \
+  -F 'ruleset=default'
+"""
 ```
-
 ---
 
 ## 🛠️ Primeros pasos (Local)
@@ -104,12 +113,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
----
-
 ### Ejecutar CLI
 
 ```bash
-python3 cli/lint.py --mode ollama --chart charts/example
+python3 cli/lint.py --mode ollama --chart_path charts/example
 ```
 
 ### Ejecutar microservicio Flask
@@ -132,9 +139,9 @@ python3 app.py
 
 ## 🔮 Próximos pasos
 
-- [ ] Validaciones de seguridad (runAsNonRoot, capabilities)
-- [ ] Integrar kubeval u otros validadores YAML
-- [ ] Exportar JSON estructurado para dashboards externos
+- [ ] Validaciones de seguridad (runAsNonRoot, seccomp, capabilities)
+- [ ] Integrar validadores externos (kubeval, kube-score)
+- [ ] Exportar JSON estructurado para dashboards Streamlit
 
 ---
 
