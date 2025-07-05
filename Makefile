@@ -1,5 +1,5 @@
 IMAGE_NAME=helm-linter
-VERSION=v0.1.2
+VERSION=v0.1.3
 CLUSTER_NAME=devops-ai
 REGISTRY=localhost:5000
 HELM_VALUES=../devops-ai-lab/manifests/helm-helm-linter/values.yaml

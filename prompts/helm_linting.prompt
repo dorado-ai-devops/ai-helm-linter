@@ -5,7 +5,7 @@ Actúa como un experto en DevOps y seguridad en Kubernetes. Analiza el siguiente
 3. Nivel de riesgo (bajo, medio, alto)
 
 Contenido del chart:
-${CHART_CONTENT}
+{{CHART_CONTENT}}
 
 Reglas a aplicar:
-${RULESET}
+{{RULESET}}
