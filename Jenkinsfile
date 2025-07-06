@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+    triggers {
+    pollSCM('H/2 * * * *')
+  }
+
   stages {
     stage('Trigger Auto PR Pipeline') {
       steps {
