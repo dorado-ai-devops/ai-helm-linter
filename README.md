@@ -17,8 +17,8 @@ Este repositorio está disponible en múltiples idiomas.
 
 ---
 
-🧠 Symbolic • Modular • Traceable  
-🧠 Simbólico • Modular • Trazable
+🧠  Modular • Traceable  
+🧠  Modular • Trazable
 
 ---
 
