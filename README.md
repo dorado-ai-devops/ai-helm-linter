@@ -19,7 +19,6 @@ Este repositorio está disponible en múltiples idiomas.
 
 🧠  Modular • Traceable  
 🧠  Modular • Trazable
-
 ---
 
 📁 Repository maintained by [@dorado-ai-devops](https://github.com/dorado-ai-devops)  
