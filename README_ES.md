@@ -137,14 +137,6 @@ python3 app.py
 
 ---
 
-## 🔮 Próximos pasos
-
-- [ ] Validaciones de seguridad (runAsNonRoot, seccomp, capabilities)
-- [ ] Integrar validadores externos (kubeval, kube-score)
-- [ ] Exportar JSON estructurado para dashboards Streamlit
-
----
-
 ## 👨‍💻 Autor
 
 - **Dani** – [@dorado-ai-devops](https://github.com/dorado-ai-devops)

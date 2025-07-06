@@ -1,6 +1,6 @@
-# 🧠 ai-helm-linter
+# 🧠 ai-mcp-server
 
-> Microservice to audit Helm Charts using LLMs (OpenAI or Ollama), detecting errors, inconsistencies, and bad practices through specialized prompts.
+> Microservice to register and store structured MCP (Pipeline Context Messages), linking Jenkins, AI prompts, and dashboards in a symbolic, auditable pipeline flow.
 
 ---
 
@@ -9,16 +9,16 @@
 This repository is available in multiple languages.  
 Este repositorio está disponible en múltiples idiomas.
 
-- 🇬🇧 [English Documentation](./README_ENG.md)  
+- 🇬🇧 [English Documentation](./README_ai-mcp-server_EN.md)  
   _Detailed guide on structure, components, usage and integration with CI/CD._
 
-- 🇪🇸 [Documentación en Español](./README_ES.md)  
+- 🇪🇸 [Documentación en Español](./README_ai-mcp-server.md)  
   _Guía completa sobre estructura, componentes, uso e integración con CI/CD._
 
 ---
 
-🧠 Semantic • Modular • Local-first  
-🧠 Semántico • Modular • Local-prioritario
+🧠  Modular • Traceable  
+🧠  Modular • Trazable
 
 ---
 

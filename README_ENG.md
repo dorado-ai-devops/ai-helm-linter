@@ -138,14 +138,6 @@ python3 app.py
 
 ---
 
-## 🔮 Roadmap
-
-- [ ] Security validations (runAsNonRoot, seccomp, capabilities)
-- [ ] Integrate external validators (kubeval, kube-score)
-- [ ] Export structured JSON for Streamlit dashboards
-
----
-
 ## 👨‍💻 Author
 
 - **Dani** – [@dorado-ai-devops](https://github.com/dorado-ai-devops)
