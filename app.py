@@ -22,7 +22,6 @@ def lint_chart():
             with tarfile.open(chart_path) as tar:
                 tar.extractall(path=tmpdir)
 
-            # Encontrar el directorio descomprimido (primer subdirectorio)
             extracted_dir = next(
                 (os.path.join(tmpdir, name) for name in os.listdir(tmpdir)
                  if os.path.isdir(os.path.join(tmpdir, name))),

@@ -3,6 +3,7 @@ Actúa como un experto en DevOps y seguridad en Kubernetes. Analiza el siguiente
 1. Problemas detectados
 2. Recomendaciones
 3. Nivel de riesgo (bajo, medio, alto)
+4. Descripcion y esquema del chart, que hace en contexto y una descripción de lo que ves, analiza cada archivo para proporcionar una descripción clara.
 
 Contenido del chart:
 {{CHART_CONTENT}}

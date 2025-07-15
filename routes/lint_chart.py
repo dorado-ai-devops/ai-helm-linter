@@ -23,7 +23,7 @@ def lint_chart():
         chart_file.save(tmp.name)
         chart_path = tmp.name
 
-    # 🧠 NUEVO: registrar el path y el nombre en /mnt/data/gateway/charts
+
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     info_path = f"/mnt/data/gateway/charts/chart_{timestamp}.path.json"
 
