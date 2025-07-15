@@ -20,6 +20,7 @@ Desarrollado en Python + Flask, con CLI integrada y despliegue vía Helm + ArgoC
 
 ---
 
+
 ## 📦 Estructura del Proyecto
 
 ```
